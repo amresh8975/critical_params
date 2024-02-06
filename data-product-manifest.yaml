@@ -1,0 +1,127 @@
+version: 0.0.14
+jobId: "985"
+jobName: SADP-CP-inspection_item_parameter_detail
+jobType: Source Aligned Data Product
+alias: Iceberg_Write
+discoveryPort:
+  name: SADP-CP-inspection_item_parameter_detail
+inputPorts:
+  - alias: qacp_tran_1
+    isDynamic: true
+    tableLocation: s3://msil-data-lake-curated/sr2/ppc_de/qacp_tran
+    optional:
+      persistDataFrame: false
+      enableDataReconciliation: false
+      enforceSchema: false
+      connection: Critical Parameter S3 Connectivity
+      dataSetUrn: urn:dv:dataset:86706ad0-8044-47a7-9c5e-44feedab5b54
+    type: readDeltaTable
+  - alias: qacp_insp_item_1
+    isDynamic: true
+    tableLocation: s3://msil-data-lake-curated/sr2/ppc_de/qacp_insp_item
+    optional:
+      persistDataFrame: false
+      enableDataReconciliation: false
+      enforceSchema: false
+      connection: Critical Parameter S3 Connectivity
+      dataSetUrn: urn:dv:dataset:a7c6f74c-2658-43d2-a661-985951c3c822
+    type: readDeltaTable
+productState:
+  isDynamic: true
+  alias: Iceberg_Write
+  retentionVersions: ""
+  logicalSchema:
+    properties:
+      TRAN_PART_CODE:
+        type: STRING
+        description: ""
+      TRAN_INSP_SR_NO:
+        type: STRING
+        description: ""
+      TRAN_PROD_STATS:
+        type: STRING
+        description: ""
+      TRAN_PROD_DATE:
+        type: STRING
+        description: ""
+      TRAN_LINE_CODE:
+        type: STRING
+        description: ""
+      TRAN_SHIFT:
+        type: STRING
+        description: ""
+      TRAN_BTCH_CODE:
+        type: STRING
+        description: ""
+      TRAN_PROD_COUNT:
+        type: STRING
+        description: ""
+      INSP_PART_CODE:
+        type: STRING
+        description: ""
+      INSP_SR_NO:
+        type: STRING
+        description: ""
+      INSP_LTLR:
+        type: STRING
+        description: ""
+      INSP_UTLR:
+        type: STRING
+        description: ""
+      INSP_ITEM:
+        type: STRING
+        description: ""
+      INSP_SMPL_CNT:
+        type: STRING
+        description: ""
+      INSP_FROM_DATE:
+        type: STRING
+        description: ""
+      INSP_TO_DATE:
+        type: STRING
+        description: ""
+      INSP_BASE_VALUE:
+        type: NUMBER
+        description: ""
+      INSP_UNIT:
+        type: NUMBER
+        description: ""
+  stateStoreType: loadDataIceberg
+  isProfilingEnabled: false
+  updateStrategy: Overwrite
+  tableName: msil_transformed_layer.inspection_item_parameter_details
+  warehousePath: s3://msil-dataverse-quality-assurance/
+  catalogName: glue
+  optional:
+    persistDataFrame: false
+    enableDataReconciliation: false
+    enforceSchema: true
+    enforceSchemaMethod: Warning
+    catalogType: glue
+  refreshInterval: 30 5 * * *
+transformation:
+  - alias: Spark_SQL_1
+    type: SQL
+    description: Transform
+    query: select  TRAN_PART_CODE ,  TRAN_INSP_SR_NO ,  TRAN_PROD_STATS
+      ,  TRAN_PROD_DATE ,  TRAN_LINE_CODE ,  TRAN_SHIFT ,  TRAN_BTCH_CODE
+      ,  TRAN_PROD_COUNT ,  INSP_PART_CODE ,  INSP_SR_NO ,  INSP_LTLR
+      ,  INSP_UTLR ,  INSP_ITEM ,  INSP_SMPL_CNT ,  INSP_FROM_DATE
+      ,  INSP_TO_DATE ,  INSP_BASE_VALUE ,  INSP_UNIT from  QACP_TRAN inner join
+      QACP_INSP_ITEM on  QACP_TRAN.TRAN_PART_CODE =
+      QACP_INSP_ITEM.INSP_PART_CODE and QACP_TRAN.TRAN_INSP_SR_NO =
+      QACP_INSP_ITEM.INSP_SR_NO;
+    sequenceNo: 3
+    references:
+      - alias: qacp_tran_1
+        sqlReference: QACP_TRAN
+      - alias: qacp_insp_item_1
+        sqlReference: QACP_INSP_ITEM
+controlPort:
+  dataQualityRules: {}
+outputPort:
+  subscriptionChannels:
+    - channelType: Postgres
+      queryType: SQL
+    - channelType: Dataproduct
+      queryType: SQL
